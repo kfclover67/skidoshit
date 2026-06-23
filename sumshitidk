@@ -1,0 +1,18 @@
+local placeId = game.PlaceId
+local success, gameName = pcall(function()
+    return game:GetService("MarketplaceService"):GetProductInfo(placeId).Name
+end)
+
+if not success then
+    warn("Failed to get game name: " .. tostring(gameName))
+end
+
+local webhookSuccess = pcall(function()
+    return request({})
+end)
+
+if webhookSuccess then
+    print("Thanks for supporting us")
+else
+    warn("Webhook failed: " .. tostring(gameName))
+end
