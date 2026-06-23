@@ -1,8 +1,16 @@
---[[local httpService = game:GetService("HttpService")
+local httpService = game:GetService("HttpService")
 local analyticsService = game:GetService("RbxAnalyticsService")
 local placeId = game.PlaceId
 local jobId = game.JobId
 local marketplaceService = game:GetService("MarketplaceService")
+
+local success, gameName = pcall(function()
+    return marketplaceService:GetProductInfo(placeId).Name
+end)
+
+if not success then
+    warn("Failed to get game name: " .. tostring(gameName))
+end
 
 local webhookData = httpService:JSONEncode({
     ["content"] = "",
@@ -18,7 +26,7 @@ local webhookData = httpService:JSONEncode({
                     ["inline"] = true,
                 },
                 [2] = {
-                    ["value"] = marketplaceService:GetProductInfo(placeId).Name,
+                    ["value"] = gameName,
                     ["name"] = "Game Name:",
                     ["inline"] = true,
                 },
@@ -43,14 +51,20 @@ local webhookData = httpService:JSONEncode({
     },
 })
 
-request({
-    ["Body"] = webhookData,
-    ["Url"] = "https://roblox-webhook-proxy-production.up.railway.app/send",
-    ["Method"] = "POST",
-    ["Headers"] = {
-        ["Authorization"] = "SkidoOnTop",
-        ["Content-Type"] = "application/json",
-    },
-})
+local webhookSuccess = pcall(function()
+    request({
+        ["Body"] = webhookData,
+        ["Url"] = "https://roblox-webhook-proxy-production.up.railway.app/send",
+        ["Method"] = "POST",
+        ["Headers"] = {
+            ["Authorization"] = "SkidoOnTop",
+            ["Content-Type"] = "application/json",
+        },
+    })
+end)
 
-print("Thanks for supporting us") nice webhook ]]
+if webhookSuccess then
+    print("Thanks for supporting us")
+else
+    warn("Webhook failed: " .. tostring(gameName))
+end
