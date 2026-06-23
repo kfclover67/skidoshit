@@ -1,18 +1,56 @@
+--[[local httpService = game:GetService("HttpService")
+local analyticsService = game:GetService("RbxAnalyticsService")
 local placeId = game.PlaceId
-local success, gameName = pcall(function()
-    return game:GetService("MarketplaceService"):GetProductInfo(placeId).Name
-end)
+local jobId = game.JobId
+local marketplaceService = game:GetService("MarketplaceService")
 
-if not success then
-    warn("Failed to get game name: " .. tostring(gameName))
-end
+local webhookData = httpService:JSONEncode({
+    ["content"] = "",
+    ["embeds"] = {
+        [1] = {
+            ["type"] = "rich",
+            ["title"] = "**Your script has been executed!**",
+            ["color"] = 16777215,
+            ["fields"] = {
+                [1] = {
+                    ["value"] = analyticsService:GetClientId(),
+                    ["name"] = "Hardware ID:",
+                    ["inline"] = true,
+                },
+                [2] = {
+                    ["value"] = marketplaceService:GetProductInfo(placeId).Name,
+                    ["name"] = "Game Name:",
+                    ["inline"] = true,
+                },
+                [3] = {
+                    ["value"] = tostring(placeId),
+                    ["name"] = "Game ID:",
+                    ["inline"] = true,
+                },
+                [4] = {
+                    ["value"] = jobId,
+                    ["name"] = "Server ID:",
+                    ["inline"] = true,
+                },
+                [5] = {
+                    ["value"] = "roblox://placeID=" .. placeId .. "&gameInstanceId=" .. jobId,
+                    ["name"] = "Join Link:",
+                    ["inline"] = false,
+                },
+            },
+            ["description"] = game.Players.LocalPlayer.DisplayName .. " has executed the script.",
+        },
+    },
+})
 
-local webhookSuccess = pcall(function()
-    return request({})
-end)
+request({
+    ["Body"] = webhookData,
+    ["Url"] = "https://roblox-webhook-proxy-production.up.railway.app/send",
+    ["Method"] = "POST",
+    ["Headers"] = {
+        ["Authorization"] = "SkidoOnTop",
+        ["Content-Type"] = "application/json",
+    },
+})
 
-if webhookSuccess then
-    print("Thanks for supporting us")
-else
-    warn("Webhook failed: " .. tostring(gameName))
-end
+print("Thanks for supporting us") nice webhook ]]
