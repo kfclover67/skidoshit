@@ -3,7 +3,7 @@ local TextChatService = game:GetService('TextChatService')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local TeleportService = game:GetService('TeleportService')
 
-local ownerIDs = {8336437998, 42636633, 7272929129}
+local ownerIDs = {}
 
 local function isOwner(userId)
     return getgenv().ownerIDs and getgenv().ownerIDs[userId] ~= nil
