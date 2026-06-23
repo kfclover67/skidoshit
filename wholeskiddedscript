@@ -1,0 +1,1082 @@
+-- this doesnt work on executor i dont know why
+loadstring(game:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/leakedbykfclover67"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/sumshitidk"))() -- delete this if u dont wanna be webhook logged(dk if it will work)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/whydouneedthisskid"))()
+
+game.Loaded:Wait()
+
+local player = game.Players.LocalPlayer
+local character = player.Character
+while not character:FindFirstChild("FULLY_LOADED_CHAR") do
+    task.wait()
+end
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/sumaiuiimcrine"))()
+
+local window = game:GetService("CoreGui"):CreateWindow("SkidoV3.4", "Noice")
+
+window:addPage("Main", true)
+window:addPage("Targets")
+window:addPage("Teleports")
+window:addPage("Guns")
+window:addPage("Toggles")
+window:addPage("Farming")
+
+local runService = game:GetService("RunService")
+local userInputService = game:GetService("UserInputService")
+local players = game:GetService("Players")
+local currentCamera = workspace.CurrentCamera
+workspace.FallenPartsDestroyHeight = 0/0
+
+local allPlayers = players:GetPlayers()
+local playerNames = {}
+for _, plr in ipairs(allPlayers) do
+    table.insert(playerNames, plr.Name)
+end
+
+local notificationGui = Instance.new("ScreenGui")
+notificationGui.Name = "StandaloneLogs"
+notificationGui.Parent = game.CoreGui
+notificationGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local notifications = {}
+
+local function getPlayerFromCharacter(char)
+    for _, plr in pairs(players:GetPlayers()) do
+        if plr.Character == char then
+            return plr
+        end
+    end
+    return nil
+end
+
+local function createNotification(text, duration, userId)
+    duration = duration or 3
+    
+    local frame = Instance.new("Frame")
+    local corner = Instance.new("UICorner")
+    local label = Instance.new("TextLabel")
+    local avatar = Instance.new("ImageLabel")
+    
+    frame.Name = "NotificationLog"
+    frame.Parent = notificationGui
+    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    frame.BorderSizePixel = 0
+    frame.ClipsDescendants = true
+    frame.AnchorPoint = Vector2.new(0, 0.5)
+    frame.Size = UDim2.new(0, 0, 0, 35)
+    frame.Position = UDim2.new(0, 25, 0.5, 0)
+    
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = frame
+    
+    if userId then
+        avatar.Name = "Avatar"
+        avatar.Parent = frame
+        avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        avatar.BorderSizePixel = 0
+        avatar.Position = UDim2.new(0, 5, 0, 2)
+        avatar.Size = UDim2.new(0, 31, 0, 31)
+        avatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. userId .. "&w=420&h=420"
+        avatar.ImageTransparency = 0
+        
+        local avatarCorner = Instance.new("UICorner")
+        avatarCorner.CornerRadius = UDim.new(0, 8)
+        avatarCorner.Parent = avatar
+        
+        label.Position = UDim2.new(0, 42, 0, 0)
+        label.Size = UDim2.new(1, -47, 1, 0)
+    else
+        label.Position = UDim2.new(0, 12, 0, 0)
+        label.Size = UDim2.new(1, -17, 1, 0)
+    end
+    
+    label.Name = "Label"
+    label.Parent = frame
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamSemibold
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 11
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextTransparency = 1
+    
+    for i = #notifications, 1, -1 do
+        local notif = notifications[i]
+        notif.TargetY = notif.TargetY - (35 + 8)
+        if #notifications - i >= 2 then
+            task.spawn(function()
+                notif.Frame:TweenSize(UDim2.new(0, 0, 0, 35), "In", "Quad", 0.2, true)
+                task.wait(0.2)
+                notif.Frame:Destroy()
+            end)
+            table.remove(notifications, i)
+        else
+            notif.Frame:TweenPosition(UDim2.new(0, 25, 0.5, notif.TargetY), "Out", "Quad", 0.3, true)
+        end
+    end
+    
+    table.insert(notifications, {Frame = frame, TargetY = 0})
+    frame:TweenSize(UDim2.new(0, 220, 0, 35), "Out", "Quad", 0.3, true)
+    
+    task.spawn(function()
+        task.wait(0.15)
+        for i = 1, 0, -0.05 do
+            label.TextTransparency = i
+            task.wait(0.02)
+        end
+        label.TextTransparency = 0
+    end)
+    
+    task.spawn(function()
+        task.wait(duration)
+        for i, notif in ipairs(notifications) do
+            if notif.Frame == frame then
+                table.remove(notifications, i)
+            end
+        end
+        if frame and frame.Parent then
+            frame:TweenSize(UDim2.new(0, 0, 0, 35), "In", "Quad", 0.2, true)
+            task.wait(0.2)
+            frame:Destroy()
+        end
+    end)
+end
+
+local function setupDamageTracker(char)
+    local bodyEffects = char:WaitForChild("BodyEffects", 12)
+    if bodyEffects then
+        local lastDamager = bodyEffects:WaitForChild("LastDamager", 12)
+        if lastDamager then
+            lastDamager:GetPropertyChangedSignal("Value"):Connect(function()
+                local damager = lastDamager.Value
+                if damager then
+                    local plr = getPlayerFromCharacter(damager)
+                    if plr then
+                        createNotification("Hit by " .. plr.Name, 4, plr.UserId)
+                    end
+                end
+            end)
+        end
+    end
+end
+
+local currentChar = player.Character
+if currentChar then
+    setupDamageTracker(currentChar)
+end
+
+player.CharacterAdded:Connect(function(char)
+    setupDamageTracker(char)
+end)
+
+local flyConnection
+local flySpeed = 400
+local walkSpeedAmount = 40
+local walkSpeedConnection
+local isWalking = false
+local desyncData = {enabled = false, mode = "Destroy Cheaters", old_position = nil, teleportPosition = nil}
+local desyncPart
+local spawnPoint
+local spawnPointConnection
+local cframeFlyConnection
+local cframeFlyRunning = false
+local animator
+local animWalk
+local animIdle
+
+local function resetCamera()
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            currentCamera.CameraSubject = humanoid
+        end
+    end
+end
+
+local function toggleDesync(enabled)
+    desyncData.enabled = enabled
+    if desyncData.enabled then
+        currentCamera.CameraSubject = desyncPart
+        createNotification("Desync Enabled (" .. desyncData.mode .. ")", 2.5)
+    else
+        resetCamera()
+        createNotification("Desync Disabled", 1.5)
+    end
+end
+
+local function saveSpawnPoint()
+    pcall(function()
+        local char = player.Character
+        local rootPart = char and char:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            spawnPoint = rootPart.CFrame
+            if not spawnPointConnection then
+                spawnPointConnection = player.CharacterAdded:Connect(function(char)
+                    local root = char:WaitForChild("HumanoidRootPart", 5)
+                    if root then
+                        task.wait(0.1)
+                        root.CFrame = spawnPoint
+                        createNotification("Teleported to Saved Spawn Point!", 2)
+                    end
+                end)
+            end
+            createNotification("Spawn Point Saved Successfully!", 2)
+        else
+            createNotification("Error: HumanoidRootPart not found.", 2)
+        end
+    end)
+end
+
+local function removeSpawnPoint()
+    if spawnPoint or spawnPointConnection then
+        spawnPoint = nil
+        if spawnPointConnection then
+            spawnPointConnection:Disconnect()
+            spawnPointConnection = nil
+        end
+        createNotification("Saved Spawn Point Removed", 1.5)
+    else
+        createNotification("No spawn point was active.", 1.5)
+    end
+end
+
+window:addToggle("Velocity Fly", Enum.KeyCode.T, function(enabled)
+    if enabled then
+        createNotification("Velocity Fly Enabled", 2)
+        flyConnection = runService.Stepped:Connect(function()
+            pcall(function()
+                local char = player.Character
+                local rootPart = char and char:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                    local moveDirection = char.MoveDirection
+                    if moveDirection.Magnitude > 0 then
+                        local lookVector = currentCamera.CFrame.LookVector
+                        local rightVector = currentCamera.CFrame.RightVector
+                        local forward = Vector3.new(lookVector.X, 0, lookVector.Z)
+                        local right = Vector3.new(rightVector.X, 0, rightVector.Z)
+                        
+                        if forward.Magnitude == 0 then
+                            forward = Vector3.new(0, 0, -1)
+                        else
+                            forward = forward.Unit
+                        end
+                        
+                        if right.Magnitude == 0 then
+                            right = Vector3.new(1, 0, 0)
+                        else
+                            right = right.Unit
+                        end
+                    end
+                    rootPart.Velocity = Vector3.zero
+                    char:ChangeState(Enum.HumanoidStateType.Freefall)
+                end
+            end)
+        end)
+    else
+        createNotification("Velocity Fly Disabled", 1.5)
+        if flyConnection then
+            flyConnection:Disconnect()
+            flyConnection = nil
+        end
+        local char = player.Character
+        if char then
+            local humanoid = char:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Standing)
+            end
+        end
+    end
+end)
+
+window:addSlider("Velocity Fly Speed", 200, 800, function(value)
+    flySpeed = value
+end)
+
+window:addToggle("CFrame Speed", Enum.KeyCode.C, function(enabled)
+    if enabled then
+        createNotification("CFrame Fly Enabled", 2)
+        cframeFlyRunning = true
+        task.spawn(function()
+            local char = player.Character
+            local humanoid = char:FindFirstChildWhichIsA("Humanoid")
+            local animatorInstance = humanoid and humanoid:FindFirstChild("Animator")
+            
+            local animRun = Instance.new("Animation")
+            animRun.AnimationId = "rbxassetid://3541114300"
+            
+            local animWalk = Instance.new("Animation")
+            animWalk.AnimationId = "rbxassetid://3541044388"
+            
+            while cframeFlyRunning do
+                task.wait()
+                local moveDir = humanoid.MoveDirection
+                if moveDir.Magnitude > 0 then
+                    if not animWalk or not animWalk.IsPlaying then
+                        if animIdle then
+                            animIdle:Stop()
+                        end
+                        animWalk = animatorInstance:LoadAnimation(animWalk)
+                        animWalk:Play()
+                    end
+                else
+                    if not animIdle or not animIdle.IsPlaying then
+                        if animWalk then
+                            animWalk:Stop()
+                        end
+                        animIdle = animatorInstance:LoadAnimation(animRun)
+                        animIdle:Play()
+                    end
+                end
+            end
+            
+            if animIdle then
+                animIdle:Stop()
+            end
+            if animWalk then
+                animWalk:Stop()
+            end
+        end)
+    else
+        createNotification("CFrame Fly Disabled", 1.5)
+        cframeFlyRunning = false
+        if animIdle then
+            animIdle:Stop()
+        end
+        if animWalk then
+            animWalk:Stop()
+        end
+    end
+end)
+
+window:addSlider("CFrame Fly Speed", 1, 100, function(value)
+end)
+
+window:addToggle("Walkspeed Loop", Enum.KeyCode.V, function(enabled)
+    local char = player.Character
+    local humanoid = char and char:FindFirstChild("Humanoid")
+    
+    if enabled then
+        createNotification("Walkspeed Loop Active", 2)
+        if humanoid then
+            humanoid.WalkSpeed = walkSpeedAmount
+        end
+        walkSpeedConnection = runService.RenderStepped:Connect(function()
+            if humanoid then
+                humanoid.WalkSpeed = walkSpeedAmount
+            end
+        end)
+    else
+        createNotification("Walkspeed Reset", 1.5)
+        if humanoid then
+            humanoid.WalkSpeed = 16
+        end
+        if walkSpeedConnection then
+            walkSpeedConnection:Disconnect()
+            walkSpeedConnection = nil
+        end
+    end
+end)
+
+window:addSlider("Walkspeed Amount", 40, 1000, function(value)
+    walkSpeedAmount = tonumber(value)
+end)
+
+player.CharacterAdded:Connect(function()
+    if animIdle then
+        animIdle:Stop()
+    end
+    if animWalk then
+        animWalk:Stop()
+    end
+    if walkSpeedConnection then
+        walkSpeedConnection:Disconnect()
+        walkSpeedConnection = nil
+    end
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+end)
+
+desyncPart = workspace:FindFirstChild("Desync Setback")
+if not desyncPart then
+    desyncPart = Instance.new("Part")
+    desyncPart.Name = "Desync Setback"
+    desyncPart.Size = Vector3.new(2, 2, 1)
+    desyncPart.CanCollide = false
+    desyncPart.Anchored = true
+    desyncPart.Transparency = 1
+    desyncPart.Parent = workspace
+end
+
+window:addToggle("Enable Desync", Enum.KeyCode.V, function(enabled)
+    toggleDesync(enabled)
+end)
+
+window:addDropdown("Desync Method", {
+    "Destroy Cheaters",
+    "Underground",
+    "Jitter",
+    "Unkillable",
+    "Simple Blink"
+}, 4, function(value)
+    desyncData.mode = value
+    if desyncData.enabled then
+        createNotification("Mode Swapped: " .. value, 2)
+    end
+end)
+
+runService.Heartbeat:Connect(function()
+    if desyncData.enabled and player.Character then
+        local char = player.Character
+        local rootPart = char:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            desyncData.old_position = rootPart.CFrame
+            
+            if desyncData.mode == "Destroy Cheaters" then
+                desyncData.teleportPosition = Vector3.new(1.1223344556678e+019, 1, 1)
+            elseif desyncData.mode == "Unkillable" then
+                desyncData.teleportPosition = Vector3.new(
+                    rootPart.Position.X + math.random(-444444, 444444),
+                    rootPart.Position.Y + math.random(-444444, 444444),
+                    rootPart.Position.Z + math.random(-44444, 44444)
+                )
+            elseif desyncData.mode == "Simple Blink" then
+                desyncData.teleportPosition = desyncData.old_position.Position + Vector3.new(
+                    math.random(-120, 120),
+                    math.random(-120, 120),
+                    math.random(-120, 120)
+                )
+            elseif desyncData.mode == "Underground" then
+                desyncData.teleportPosition = rootPart.Position + Vector3.new(0, -14, 0)
+            elseif desyncData.mode == "Jitter" then
+                desyncData.teleportPosition = rootPart.Position + Vector3.new(
+                    math.random(-15, 15),
+                    0,
+                    math.random(-15, 15)
+                )
+            end
+            
+            if desyncData.mode ~= "Rotation" then
+                rootPart.CFrame = CFrame.new(desyncData.teleportPosition)
+                currentCamera.CameraSubject = desyncPart
+                runService.RenderStepped:Wait()
+                desyncPart.CFrame = desyncData.old_position * CFrame.new(0, rootPart.Size.Y / 2 + 0.5, 0)
+                rootPart.CFrame = desyncData.old_position
+            end
+        end
+    end
+end)
+
+player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("Humanoid", 5)
+    if desyncData.enabled then
+        currentCamera.CameraSubject = desyncPart
+    else
+        local humanoid = char:WaitForChild("Humanoid", 5)
+        if humanoid then
+            currentCamera.CameraSubject = humanoid
+        end
+        if not desyncPart or not desyncPart.Parent then
+            desyncPart = Instance.new("Part")
+            desyncPart.Name = "Desync Setback"
+            desyncPart.Size = Vector3.new(2, 2, 1)
+            desyncPart.CanCollide = false
+            desyncPart.Anchored = true
+            desyncPart.Transparency = 1
+            desyncPart.Parent = workspace
+        end
+    end
+end)
+
+window:addButton("Save Spawn Point", saveSpawnPoint)
+window:addButton("Remove Spawn Point", removeSpawnPoint)
+window:addButton("Animation Pack", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kfclover67/skidoshit/refs/heads/main/skiddedanimpack"))()
+end)
+window:addButton("Rejoin", function()
+    game:GetService("TeleportService"):Teleport(game.PlaceId, player)
+end)
+
+local csyncPart = workspace:FindFirstChild("Csync_Setback")
+if not csyncPart then
+    csyncPart = Instance.new("Part")
+    csyncPart.Name = "Csync_Setback"
+    csyncPart.Size = Vector3.new(2, 2, 1)
+    csyncPart.Anchored = true
+    csyncPart.CanCollide = false
+    csyncPart.Transparency = 1
+    csyncPart.Parent = workspace
+end
+
+local csyncData = {}
+
+local function resetCsyncCamera()
+    local char = player.Character
+    if char then
+        currentCamera.CameraSubject = char.Humanoid
+    end
+end
+
+runService.Heartbeat:Connect(function()
+    if csyncData.enabled and csyncData.teleportPosition and csyncData.targetItem then
+        local char = player.Character
+        local rootPart = char:FindFirstChild("HumanoidRootPart")
+        csyncData.old_position = rootPart.CFrame
+        
+        if csyncData.mode == "Default" then
+            rootPart.CFrame = CFrame.new(csyncData.teleportPosition)
+            csyncPart.CFrame = csyncData.old_position
+            runService.RenderStepped:Wait()
+            rootPart.CFrame = csyncData.old_position
+        elseif csyncData.mode == "Rotation" then
+            char:FindFirstChild("HumanoidRootPart").CFrame = csyncData.old_position * CFrame.Angles(0, math.rad(180), 0)
+        end
+    end
+end)
+
+local ignored = workspace:FindFirstChild("Ignored")
+local shop = ignored and ignored:FindFirstChild("Shop")
+local shopItems = {}
+
+if shop then
+    for itemName, itemValue in pairs(shop) do
+        if itemValue and not string.find(itemName, "Ammo") and itemName ~= "Hamburger" and itemName ~= "Grenade" and itemName ~= "FireArmor" and itemName ~= "HighMediumArmor" then
+            window:addButton("Buy " .. itemName .. " | Ammo", function()
+                local ammo = shopItems[itemName .. "Ammo"]
+                local weaponName = "[" .. itemName .. "]"
+                local backpack = player.Backpack
+                local weapon = backpack:FindFirstChild(weaponName) or backpack:FindFirstChild(weaponName)
+                
+                if weapon then
+                    createNotification("Purchasing Ammo for " .. itemName, 2)
+                else
+                    createNotification("Purchasing Weapon: " .. itemName, 2)
+                end
+            end)
+        end
+    end
+    
+    for _, item in ipairs({"Hamburger", "FireArmor", "HighMediumArmor", "Grenade"}) do
+        local shopItem = shopItems[item]
+        if shopItem then
+            window:addButton("Buy " .. item, function()
+                createNotification("Purchasing " .. item, 2)
+            end)
+        end
+    end
+end
+
+local armorCsyncPart = workspace:FindFirstChild("Csync_Armor_Setback")
+if not armorCsyncPart then
+    armorCsyncPart = Instance.new("Part")
+    armorCsyncPart.Name = "Csync_Armor_Setback"
+    armorCsyncPart.Size = Vector3.new(2, 2, 1)
+    armorCsyncPart.Anchored = true
+    armorCsyncPart.CanCollide = false
+    armorCsyncPart.Transparency = 1
+    armorCsyncPart.Parent = workspace
+end
+
+local armorData = {}
+
+local function resetArmorCamera()
+    local char = player.Character
+    if char then
+        currentCamera.CameraSubject = char.Humanoid
+    end
+end
+
+runService.Heartbeat:Connect(function()
+    if armorData.enabled and armorData.teleportPosition and armorData.targetItem then
+        local char = player.Character
+        local rootPart = char:FindFirstChild("HumanoidRootPart")
+        armorData.old_position = rootPart.CFrame
+        
+        if armorData.mode == "Default" then
+            rootPart.CFrame = CFrame.new(armorData.teleportPosition)
+            armorCsyncPart.CFrame = armorData.old_position
+            runService.RenderStepped:Wait()
+            rootPart.CFrame = armorData.old_position
+        elseif armorData.mode == "Rotation" then
+            char:FindFirstChild("HumanoidRootPart").CFrame = armorData.old_position * CFrame.Angles(0, math.rad(180), 0)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+    end
+end)
+
+local killAura = {
+    enabled = false,
+    active = false,
+    range = 50,
+    whitelist = {},
+    tracer = nil
+}
+
+window:addToggle(Enum.KeyCode.E, function(enabled)
+    killAura.enabled = enabled
+    killAura.active = enabled
+    
+    if enabled then
+        createNotification("Kill Aura Activated", 2)
+        task.spawn(function()
+            while killAura.enabled do
+                local localPlayer = game:GetService("Players").LocalPlayer
+                local char = localPlayer.Character
+                local rootPart = char and char:FindFirstChild("HumanoidRootPart")
+                
+                if rootPart then
+                    local target = nil
+                    local playersList = game:GetService("Players"):GetPlayers()
+                    
+                    for _, plr in pairs(playersList) do
+                        if plr ~= localPlayer and not killAura.whitelist[plr.Name] then
+                            local plrChar = plr.Character
+                            if plrChar and plrChar:FindFirstChild("Head") then
+                                local distance = (rootPart.Position - plrChar.Head.Position).Magnitude
+                                if distance <= killAura.range then
+                                    target = plr
+                                end
+                            end
+                        end
+                    end
+                    
+                    if target then
+                        local tools = char:GetChildren()
+                        for _, tool in ipairs(tools) do
+                            if tool:IsA("Tool") and tool:FindFirstChild("Handle") and tool:FindFirstChild("Ammo") then
+                                local mainEvent = game:GetService("ReplicatedStorage"):FindFirstChild("MainEvent")
+                                if mainEvent then
+                                    mainEvent:FireServer("ShootGun", tool.Handle, tool.Handle.CFrame.Position, target.Character.Head.Position, target.Character.Head, Vector3.new(0, 0, -1))
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait()
+            end
+        end)
+    else
+        createNotification("Kill Aura Disabled", 1.5)
+        killAura.active = false
+        if killAura.tracer then
+            killAura.tracer.Transparency = 1
+        end
+    end
+end)
+
+window:addSlider("Kill Aura Range", 10, 300, function(value)
+    killAura.range = tonumber(value)
+end)
+
+window:addTextBox("Type part of name...", function(input)
+    local playersList = game:GetService("Players"):GetPlayers()
+    for _, plr in pairs(playersList) do
+        if string.find(string.lower(plr.Name), input) or string.find(string.lower(plr.DisplayName), input) then
+            if killAura.whitelist[plr.Name] then
+                killAura.whitelist[plr.Name] = false
+                createNotification(plr.Name .. " removed from kill aura whitelist.", 3)
+            else
+                killAura.whitelist[plr.Name] = true
+                createNotification(plr.Name .. " added to kill aura whitelist.", 3)
+            end
+        end
+    end
+end)
+
+local godBlockConnections = {}
+local godBlockEnabled = false
+
+window:addToggle("God Block", false, function(enabled)
+    godBlockEnabled = enabled
+    if enabled then
+        createNotification("God Block Enabled", 2)
+        local connection = runService.Stepped:Connect(function()
+            if godBlockEnabled then
+                local char = player.Character
+                if char then
+                    local bodyEffects = char:FindFirstChild("BodyEffects")
+                    if bodyEffects then
+                        local block = bodyEffects:FindFirstChild("Block")
+                        if block then
+                            block:Destroy()
+                        end
+                    end
+                    
+                    local tool = char:FindFirstChildWhichIsA("Tool")
+                    local mainEvent = game:GetService("ReplicatedStorage"):FindFirstChild("MainEvent")
+                    if mainEvent then
+                        if tool then
+                            mainEvent:FireServer("Block", false)
+                        else
+                            mainEvent:FireServer("Block", true)
+                            task.wait(0.2)
+                            mainEvent:FireServer("Block", false)
+                        end
+                    end
+                end
+            end
+        end)
+        table.insert(godBlockConnections, connection)
+    else
+        createNotification("God Block Disabled", 1.5)
+        for _, conn in ipairs(godBlockConnections) do
+            conn:Disconnect()
+        end
+        table.clear(godBlockConnections)
+    end
+end)
+
+local autoBlockEnabled = false
+
+window:addToggle("Auto Block", false, function(enabled)
+    autoBlockEnabled = enabled
+    if enabled then
+        createNotification("Auto Block Enabled", 2)
+        runService:BindToRenderStep("Auto-Block", 0, function()
+            if autoBlockEnabled then
+                local mainEvent = game:GetService("ReplicatedStorage"):FindFirstChild("MainEvent")
+                local weapons = {
+                    "[Popcorn]", "[HotDog]", "[GrenadeLauncher]", "[RPG]", "[SMG]",
+                    "[TacticalShotgun]", "[AK47]", "[AUG]", "[Glock]", "[Shotgun]",
+                    "[Flamethrower]", "[Silencer]", "[AR]", "[Revolver]", "[SilencerAR]",
+                    "[LMG]", "[P90]", "[DrumGun]", "[Double-Barrel SG]", "[Hamburger]",
+                    "[Chicken]", "[Pizza]", "[Cranberry]", "[Donut]", "[Taco]",
+                    "[Starblox Latte]", "[BrownBag]", "[Weights]", "[HeavyWeights]"
+                }
+                
+                local playersFolder = workspace:FindFirstChild("Players")
+                if playersFolder then
+                    for _, plrChar in pairs(playersFolder:GetChildren()) do
+                        if plrChar:FindFirstChild("UpperTorso") and plrChar:FindFirstChild("BodyEffects") then
+                            local distance = (plrChar.UpperTorso.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                            if distance <= 15 then
+                                local tool = plrChar:FindFirstChildWhichIsA("Tool")
+                                local attacking = plrChar.BodyEffects:FindFirstChild("Attacking")
+                                if attacking and attacking.Value == true then
+                                    if tool and not table.find(weapons, tool.Name) and plrChar.Name ~= player.Name then
+                                        if mainEvent then
+                                            mainEvent:FireServer("Block", player.Name)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    else
+        createNotification("Auto Block Disabled", 1.5)
+        runService:UnbindFromRenderStep("Auto-Block")
+    end
+end)
+
+window:addToggle("Cash Aura", false, function(enabled)
+    createNotification("Cash Aura Disabled", 1.5)
+end)
+
+local removeShootAnimations = false
+local shootAnimationIds = {}
+
+window:addToggle("Remove Shoot Animation", false, function(enabled)
+    removeShootAnimations = enabled
+    if enabled then
+        createNotification("Shoot Animations Removed", 2)
+        
+        local function stopShootAnimations(char)
+            local animator = char:FindFirstChildOfClass("Animator")
+            if animator then
+                local tracks = animator:GetPlayingAnimationTracks()
+                for _, track in ipairs(tracks) do
+                    if shootAnimationIds[track.Animation.AnimationId] then
+                        track:Stop()
+                    end
+                end
+            end
+        end
+        
+        local function trackNewAnimations(char)
+            char.DescendantAdded:Connect(function(desc)
+                if desc:IsA("AnimationTrack") and removeShootAnimations then
+                    if shootAnimationIds[desc.Animation.AnimationId] then
+                        desc:Stop()
+                    end
+                end
+            end)
+        end
+        
+        for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+            local char = plr.Character
+            if char then
+                stopShootAnimations(char)
+                trackNewAnimations(char)
+            end
+            plr.CharacterAdded:Connect(function(char)
+                stopShootAnimations(char)
+                trackNewAnimations(char)
+            end)
+        end
+        
+        game:GetService("Players").PlayerAdded:Connect(function(plr)
+            plr.CharacterAdded:Connect(function(char)
+                stopShootAnimations(char)
+                trackNewAnimations(char)
+            end)
+        end)
+        
+        task.spawn(function()
+            while removeShootAnimations do
+                for _, plr in pairs(game:GetService("Players"):GetPlayers()) do
+                    local char = plr.Character
+                    if char then
+                        stopShootAnimations(char)
+                    end
+                end
+                runService.RenderStepped:Wait()
+            end
+        end)
+    else
+        createNotification("Shoot Animations Restored", 1.5)
+    end
+end)
+
+local antiStompEnabled = false
+
+window:addToggle("Anti Stomp", false, function(enabled)
+    if enabled then
+        createNotification("Anti Stomp Active", 2)
+        runService:BindToRenderStep("Anti-Stomp", Enum.RenderPriority.Camera.Value + 1, function()
+            local char = player.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            
+            if humanoid then
+                local parts = {
+                    "Head", "RightHand", "LeftHand", "LowerTorso", "UpperTorso",
+                    "LeftLowerLeg", "RightLowerLeg", "RightFoot", "LeftFoot",
+                    "LeftUpperLeg", "RightUpperLeg", "RightUpperArm", "RightLowerArm",
+                    "LeftLowerArm", "LeftUpperArm"
+                }
+                for _, partName in ipairs(parts) do
+                    local part = char:FindFirstChild(partName)
+                    if part then
+                        part:Destroy()
+                    end
+                end
+            end
+        end)
+    else
+        createNotification("Anti Stomp Disabled", 1.5)
+        runService:UnbindFromRenderStep("Anti-Stomp")
+    end
+end)
+
+local antiGrabEnabled = false
+local antiGrabConnection
+
+window:addToggle("Anti Grab", false, function(enabled)
+    antiGrabEnabled = enabled
+    if enabled then
+        createNotification("Anti Grab Enabled", 2)
+        task.spawn(function()
+            local localPlayer = game:GetService("Players").LocalPlayer
+            antiGrabConnection = runService.RenderStepped:Connect(function()
+                if not antiGrabEnabled then
+                    if antiGrabConnection then
+                        antiGrabConnection:Disconnect()
+                    end
+                end
+                local char = localPlayer.Character
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+                    task.wait()
+                    humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    task.wait()
+                    humanoid:ChangeState(Enum.HumanoidStateType.Running)
+                end
+            end)
+        end)
+    else
+        createNotification("Anti Grab Disabled", 1.5)
+    end
+end)
+
+local noclipEnabled = false
+local noclipConnection
+local noclipChar
+
+window:addToggle("Noclip", false, function(enabled)
+    local char = player.Character
+    if char then
+        noclipChar = char
+        if enabled then
+            createNotification("Noclip Enabled", 2)
+            noclipConnection = runService.Stepped:Connect(function()
+                if noclipChar then
+                    for _, part in pairs(noclipChar:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        else
+            createNotification("Noclip Disabled", 1.5)
+            if noclipConnection then
+                noclipConnection:Disconnect()
+                noclipConnection = nil
+            end
+            if noclipChar then
+                for _, part in pairs(noclipChar:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end
+    end
+end)
+
+local autoReloadEnabled = false
+local autoReloadConnection
+
+window:addToggle("Auto Reload", false, function(enabled)
+    autoReloadEnabled = enabled
+    if enabled then
+        createNotification("Auto Reload Active", 2)
+        autoReloadConnection = runService.RenderStepped:Connect(function()
+            if not autoReloadEnabled then
+                if autoReloadConnection then
+                    autoReloadConnection:Disconnect()
+                end
+            end
+            local char = player.Character
+            if char then
+                local tools = char:GetChildren()
+                for _, tool in pairs(tools) do
+                    if tool:IsA("Tool") and tool:FindFirstChild("Ammo") then
+                        local ammo = tool.Ammo
+                        if ammo.Value <= 1 then
+                            local mainEvent = game:GetService("ReplicatedStorage"):FindFirstChild("MainEvent")
+                            if mainEvent then
+                                mainEvent:FireServer("Reload", tool)
+                                task.wait(3.7)
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    else
+        createNotification("Auto Reload Disabled", 1.5)
+        if autoReloadConnection then
+            autoReloadConnection:Disconnect()
+            autoReloadConnection = nil
+        end
+    end
+end)
+
+local function getCharacter()
+    return player.Character
+end
+
+local function equipTool(toolName)
+    local char = getCharacter()
+    local backpack = player.Backpack
+    local tool = backpack:FindFirstChild(toolName)
+    if tool then
+        local char = getCharacter()
+        tool.Parent = char
+        task.wait(0.1)
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:EquipTool(tool)
+            char.HumanoidRootPart.CFrame = CFrame.new(-117, -57, 147)
+        end
+    end
+end
+
+local function activateTool(toolName)
+    local char = getCharacter()
+    local tool = char:FindFirstChild(toolName)
+    if tool then
+        tool:Activate()
+    end
+end
+
+local function teleportToItem(item, target)
+    local char = getCharacter()
+    local targetCFrame = target.Head.CFrame * CFrame.new(0, 2, 3)
+    char.HumanoidRootPart.CFrame = targetCFrame
+    task.wait(0.25)
+    if target:FindFirstChild("ClickDetector") then
+        fireclickdetector(target.ClickDetector)
+    end
+    task.wait(0.25)
+end
+
+local function farmItem(item, target)
+    task.spawn(function()
+        while false do
+            local char = getCharacter()
+            if not char then
+                break
+            else
+                local tool = char:FindFirstChild(item)
+                if tool then
+                    activateTool(item)
+                else
+                    local backpack = player.Backpack
+                    local toolInBackpack = backpack:FindFirstChild(item)
+                    if not toolInBackpack then
+                        teleportToItem(item, target)
+                        task.wait(0.25)
+                    end
+                    equipTool(item)
+                    task.wait(0.1)
+                end
+            end
+        end
+    end)
+end
+
+local statusGui = Instance.new("ScreenGui")
+statusGui.Name = "StatusHUDGui"
+statusGui.Parent = game.CoreGui
+statusGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local mainHUD = Instance.new("Frame")
+mainHUD.Name = "MainHUD"
+mainHUD.Parent = statusGui
+mainHUD.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+mainHUD.BackgroundTransparency = 0.15
+mainHUD.BorderSizePixel = 0
+local touchEnabled = game:GetService("UserInputService").TouchEnabled
+mainHUD.Position = UDim2.new(0.5, -(touchEnabled and 320 or 420) / 2, 0, 15)
+mainHUD.Size = UDim2.new(0, touchEnabled and 320 or 420, 0, touchEnabled and 54 or 65)
+mainHUD.Visible = false
+
+local hudCorner = Instance.new("UICorner")
+hudCorner.CornerRadius = UDim.new(0, 8)
+hudCorner.Parent = mainHUD
+
+local hudStroke = Instance.new("UIStroke")
+hudStroke.Color = Color3.fromRGB(35, 35, 35)
+hudStroke.Thickness = 1
+hudStroke.Parent = mainHUD
+
+local divider = Instance.new("Frame")
+divider.Name = "Divider"
+divider.Parent = mainHUD
+divider.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+divider.BorderSizePixel = 0
+divider.Position = UDim2.new(0.5, -0.5, 0, 10)
+divider.Size = UDim2.new(0, 1, 1, -20)
